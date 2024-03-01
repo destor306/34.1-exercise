@@ -1,8 +1,23 @@
+const Router = require("express").Router
+const User = require("../models/user");
+const {ensureLoggedIn, ensureCorrectUser} = require("../middleware/auth");
+
+const router = new Router();
 /** GET / - get list of users.
  *
  * => {users: [{username, first_name, last_name, phone}, ...]}
  *
  **/
+
+router.get('/', ensureLoggedIn, async(req, res, next)=>{
+    try{
+        const result = await User.all();
+        return res.json({users: result})
+    }
+    catch(e){
+        return next(e);
+    }
+})
 
 
 /** GET /:username - get detail of users.
@@ -11,6 +26,16 @@
  *
  **/
 
+router.get("/:username", ensureCorrectUser, async(req, res, next)=>{
+    try{
+        const result = await User.get(req.params.username);
+        //console.log(result);
+        return res.json({user: result})
+    }
+    catch(e){
+        return next(e);
+    }
+})
 
 /** GET /:username/to - get messages to user
  *
@@ -21,7 +46,16 @@
  *                 from_user: {username, first_name, last_name, phone}}, ...]}
  *
  **/
+router.get('/:username/to', ensureCorrectUser, async (req, res, next)=>{
 
+    try{
+        const result = await User.messagesTo(req.params.username);
+        return res.json({messages: result})
+    }
+    catch(e){
+        return next(e);
+    }
+})
 
 /** GET /:username/from - get messages from user
  *
@@ -32,3 +66,15 @@
  *                 to_user: {username, first_name, last_name, phone}}, ...]}
  *
  **/
+
+router.get("/:username/from", ensureCorrectUser, async (req, res, next)=>{
+    try{
+        const result = await User.messagesFrom(req.params.username);
+        return res.json({messages: result})
+    }
+    catch(e){
+        return next(e);
+    }
+})
+
+module.exports = router;

@@ -4,7 +4,6 @@
 const express = require("express");
 const cors = require("cors");
 const { authenticateJWT } = require("./middleware/auth");
-
 const ExpressError = require("./expressError")
 const app = express();
 
